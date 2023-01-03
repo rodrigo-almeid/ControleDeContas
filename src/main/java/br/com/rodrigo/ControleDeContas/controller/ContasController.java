@@ -4,7 +4,7 @@ import br.com.rodrigo.ControleDeContas.controller.dto.ContaDto;
 import br.com.rodrigo.ControleDeContas.controller.dto.ListaContasSomaResultadoDto;
 import br.com.rodrigo.ControleDeContas.controller.form.ContaForm;
 import br.com.rodrigo.ControleDeContas.controller.form.PagarContaForm;
-import br.com.rodrigo.ControleDeContas.controller.service.ContaService;
+import br.com.rodrigo.ControleDeContas.service.ContaService;
 import br.com.rodrigo.ControleDeContas.repository.ContaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

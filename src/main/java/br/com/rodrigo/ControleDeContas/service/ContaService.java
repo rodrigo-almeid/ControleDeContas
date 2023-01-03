@@ -1,4 +1,4 @@
-package br.com.rodrigo.ControleDeContas.controller.service;
+package br.com.rodrigo.ControleDeContas.service;
 
 import br.com.rodrigo.ControleDeContas.controller.dto.ContaDto;
 import br.com.rodrigo.ControleDeContas.controller.dto.ListaContasSomaResultadoDto;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -83,17 +84,20 @@ public class ContaService {
             form.setParcela(1);
         }
         Integer i = form.getParcela();
+        List<Conta> contas = new Array<>();
         while (i != 0) {
             Conta conta = form.converter(contaRepository);
-            contaRepository.save(conta);
             conta.setVencimento(conta.getVencimento().plusMonths(i - 1));
+            contas.add(conta);
             i--;
         }
+        contaRepository.save(contas);
         List<ContaDto> contasDto = ContaDto.converter(contaRepository.findByContaAndValor(form.getConta(), form.getValor()));
         return contasDto;
     }
 
     public static ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
+
         Optional<Conta> optional = contaRepository.findById(id);
         if (optional.isPresent()) {
             Conta conta = form.pagar(id, contaRepository);

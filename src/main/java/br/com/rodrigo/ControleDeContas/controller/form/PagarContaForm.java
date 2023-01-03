@@ -18,4 +18,8 @@ public class PagarContaForm {
 
     }
 
+    public Conta ajuste(Long id, ContaRepository contaRepository) {
+        Conta conta = contaRepository.getOne(id);
+        return conta;
+    }
 }

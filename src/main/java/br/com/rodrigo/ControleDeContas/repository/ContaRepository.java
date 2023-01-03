@@ -16,7 +16,6 @@ public interface ContaRepository extends JpaRepository<Conta, Long> {
 
     List<Conta> findByContaAndValor(String conta, Double valor);
 
-
     List<Conta> findByVencimentoBetweenAndStatus (LocalDate inicio, LocalDate fim, StatusConta statusConta , Sort sort);
 
 

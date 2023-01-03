@@ -40,7 +40,7 @@ public class Conta {
         this.vencimento = vencimento;
         this.descricao = descricao;
     }
-    public Conta(String conta, Double valor, LocalDate vencimento, String descricao, Integer parcela) {
+    public Conta(Long id, String conta, Double valor, LocalDate vencimento, String descricao, Integer parcela) {
         this.conta = conta;
         this.valor = valor;
         this.vencimento = vencimento;

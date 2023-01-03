@@ -12,11 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +23,10 @@ import java.util.Optional;
 public class ContaService {
 
     @Autowired
-    private static ContaRepository contaRepository;
+    private ContaRepository contaRepository;
+
+
+
 
     public ResponseEntity<ListaContasSomaResultadoDto> lista(LocalDate inicio, LocalDate fim, String status) {
         if (status == null) {
@@ -79,12 +81,12 @@ public class ContaService {
         }
         return ResponseEntity.notFound().build();
     }
-    public static List<ContaDto> cadastrar(ContaForm form, UriComponentsBuilder uriBuilder) {
+    public List<ContaDto> cadastrar(ContaForm form, UriComponentsBuilder uriBuilder) {
         if (form.getParcela() == null) {
             form.setParcela(1);
         }
         Integer i = form.getParcela();
-        List<Conta> contas = new Array();
+        List<Conta> contas = new ArrayList<>();
         while (i != 0) {
             Conta conta = form.converter(contaRepository);
             conta.setVencimento(conta.getVencimento().plusMonths(i - 1));
@@ -96,7 +98,7 @@ public class ContaService {
         return contasDto;
     }
 
-    public static ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
+    public ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
 
         Optional<Conta> optional = contaRepository.findById(id);
         if (optional.isPresent()) {
@@ -105,5 +107,14 @@ public class ContaService {
         }
         return ResponseEntity.notFound().build();
     }
+//    public static ResponseEntity<ContaDto> ajuste(Long id, PagarContaForm form) {
+//        Optional<Conta> optional = contaRepository.findById(id);
+//
+//        if (optional.isPresent()) {
+//            Conta conta = form.ajuste(id, contaRepository);
+//            return ResponseEntity.ok(new ContaDto(conta));
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 }
 

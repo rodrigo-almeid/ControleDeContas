@@ -44,5 +44,9 @@ public class ContasController {
     public ResponseEntity<ContaDto> pagar(@PathVariable Long id, @RequestBody PagarContaForm form) {
         return ContaService.pagar(id, form);
     }
-
+//    @PutMapping("/{id}/ajuste")
+//    @Transactional
+//    public ResponseEntity<ContaDto> ajuste(@PathVariable Long id, @RequestBody PagarContaForm form){
+//        return ContaService.ajuste(id, form);
+//    }
 }

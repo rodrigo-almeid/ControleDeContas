@@ -1,7 +1,7 @@
 package br.com.rodrigo.ControleDeContas.service;
 
-import br.com.rodrigo.ControleDeContas.controller.dto.ContaDto;
-import br.com.rodrigo.ControleDeContas.controller.dto.ListaContasSomaResultadoDto;
+import br.com.rodrigo.ControleDeContas.dto.ContaDto;
+import br.com.rodrigo.ControleDeContas.dto.ListaContasSomaResultadoDto;
 import br.com.rodrigo.ControleDeContas.controller.form.ContaForm;
 import br.com.rodrigo.ControleDeContas.controller.form.PagarContaForm;
 import br.com.rodrigo.ControleDeContas.model.Conta;
@@ -27,51 +27,23 @@ public class ContaService {
 
 
 
-
     public ResponseEntity<ListaContasSomaResultadoDto> lista(LocalDate inicio, LocalDate fim, String status) {
-        if (status == null) {
-            if (inicio != null && fim != null) {
-                List<Conta> contas = contaRepository.findByVencimentoBetween(inicio, fim, Sort.by(Sort.Direction.ASC, "vencimento"));
-                Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-                List<ContaDto> contasDto = ContaDto.converter(contas);
-                ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-                return ResponseEntity.ok(resultado);
-            }
-            if (inicio != null && fim == null) {
-                List<Conta> contas = contaRepository.findByVencimentoGreaterThanEqual(inicio);
-                Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-                List<ContaDto> contasDto = ContaDto.converter(contas);
-                ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-                return ResponseEntity.ok(resultado);
-            }
-            List<Conta> contas = contaRepository.findAll();
-            Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-            List<ContaDto> contasDto = ContaDto.converter(contas);
-            ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-            return ResponseEntity.ok(resultado);
+        List<Conta> contas;
+        List<ContaDto> contasDto;
+        ListaContasSomaResultadoDto resultado;
 
+        if (status != null && inicio != null && fim != null) {
+            contas = contaRepository.findByVencimentoBetweenAndStatus(inicio, fim, StatusConta.valueOf(status), Sort.by(Sort.Direction.ASC, "vencimento"));
         } else {
-            if (inicio != null && fim != null) {
-                List<Conta> contas = contaRepository.findByVencimentoBetweenAndStatus(inicio, fim, StatusConta.valueOf(status), Sort.by(Sort.Direction.ASC, "vencimento"));
-                Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-                List<ContaDto> contasDto = ContaDto.converter(contas);
-                ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-                return ResponseEntity.ok(resultado);
-            } else if
-            (inicio != null && fim == null) {
-                List<Conta> contas = contaRepository.findByVencimentoGreaterThanEqual(inicio);
-                Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-                List<ContaDto> contasDto = ContaDto.converter(contas);
-                ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-                return ResponseEntity.ok(resultado);
-            }
-            List<Conta> contas = contaRepository.findAll();
-            Double valor = contas.stream().mapToDouble(Conta::getValor).sum();
-            List<ContaDto> contasDto = ContaDto.converter(contas);
-            ListaContasSomaResultadoDto resultado = new ListaContasSomaResultadoDto(valor, contasDto);
-            return ResponseEntity.ok(resultado);
-
+            contas = verificarDatas(inicio, fim);
         }
+
+        contasDto = ContaDto.converter(contas);
+        resultado = new ListaContasSomaResultadoDto(
+                contas.stream().mapToDouble(Conta::getValor).sum(),
+                contasDto
+        );
+        return ResponseEntity.ok(resultado);
     }
 
     public ResponseEntity<ContaDto> detalhar(@PathVariable Long id) {
@@ -81,40 +53,42 @@ public class ContaService {
         }
         return ResponseEntity.notFound().build();
     }
-    public List<ContaDto> cadastrar(ContaForm form, UriComponentsBuilder uriBuilder) {
+    public static List<ContaDto> cadastrar(ContaForm form, UriComponentsBuilder uriBuilder) {
         if (form.getParcela() == null) {
             form.setParcela(1);
         }
         Integer i = form.getParcela();
-        List<Conta> contas = new ArrayList<>();
         while (i != 0) {
             Conta conta = form.converter(contaRepository);
+            contaRepository.save(conta);
             conta.setVencimento(conta.getVencimento().plusMonths(i - 1));
-            contas.add(conta);
             i--;
         }
-        contaRepository.saveAll(contas);
         List<ContaDto> contasDto = ContaDto.converter(contaRepository.findByContaAndValor(form.getConta(), form.getValor()));
         return contasDto;
     }
-
-    public ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
-
-        Optional<Conta> optional = contaRepository.findById(id);
-        if (optional.isPresent()) {
-            Conta conta = form.pagar(id, contaRepository);
-            return ResponseEntity.ok(new ContaDto(conta));
-        }
-        return ResponseEntity.notFound().build();
-    }
-//    public static ResponseEntity<ContaDto> ajuste(Long id, PagarContaForm form) {
+//    public static ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
 //        Optional<Conta> optional = contaRepository.findById(id);
-//
 //        if (optional.isPresent()) {
-//            Conta conta = form.ajuste(id, contaRepository);
+//            Conta conta = form.pagar(id, contaRepository);
 //            return ResponseEntity.ok(new ContaDto(conta));
 //        }
 //        return ResponseEntity.notFound().build();
 //    }
+    private List<Conta> verificarDatas(LocalDate inicio, LocalDate fim) {
+        List<Conta> contaList = new ArrayList<>();
+        if (inicio != null && fim != null) {
+            contaList = contaRepository.findByVencimentoBetween(inicio, fim, Sort.by(Sort.Direction.ASC, "vencimento"));
+        }
+
+        if (inicio != null && fim == null) {
+            contaList = contaRepository.findByVencimentoGreaterThanEqual(inicio);
+        }
+
+        if (inicio == null && fim == null) {
+            contaList = contaRepository.findAll();
+        }
+        return contaList;
+    }
 }
 

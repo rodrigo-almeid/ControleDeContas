@@ -1,4 +1,4 @@
-package br.com.rodrigo.ControleDeContas.controller.dto;
+package br.com.rodrigo.ControleDeContas.dto;
 
 import br.com.rodrigo.ControleDeContas.model.StatusConta;
 import lombok.Getter;

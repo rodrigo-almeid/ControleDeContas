@@ -1,7 +1,7 @@
 package br.com.rodrigo.ControleDeContas.controller;
 
-import br.com.rodrigo.ControleDeContas.controller.dto.ContaDto;
-import br.com.rodrigo.ControleDeContas.controller.dto.ListaContasSomaResultadoDto;
+import br.com.rodrigo.ControleDeContas.dto.ContaDto;
+import br.com.rodrigo.ControleDeContas.dto.ListaContasSomaResultadoDto;
 import br.com.rodrigo.ControleDeContas.controller.form.ContaForm;
 import br.com.rodrigo.ControleDeContas.controller.form.PagarContaForm;
 import br.com.rodrigo.ControleDeContas.service.ContaService;
@@ -20,8 +20,7 @@ import java.util.List;
 public class ContasController {
     @Autowired
     private ContaService contaService;
-    @Autowired
-    private ContaRepository contaRepository;
+
 
     @GetMapping
     public ResponseEntity<ListaContasSomaResultadoDto> lista(LocalDate inicio, LocalDate fim, String status) {
@@ -34,19 +33,13 @@ public class ContasController {
     }
 
     @PostMapping
-    @Transactional
     public List<ContaDto> cadastrar(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) {
         return ContaService.cadastrar(form, uriBuilder);
     }
-
-    @PutMapping("/{id}/pagar")
-    @Transactional
-    public ResponseEntity<ContaDto> pagar(@PathVariable Long id, @RequestBody PagarContaForm form) {
-        return ContaService.pagar(id, form);
-    }
-//    @PutMapping("/{id}/ajuste")
-//    @Transactional
-//    public ResponseEntity<ContaDto> ajuste(@PathVariable Long id, @RequestBody PagarContaForm form){
-//        return ContaService.ajuste(id, form);
+//
+//    @PutMapping("/{id}/pagar")
+//    public ResponseEntity<ContaDto> pagar(@PathVariable Long id, @RequestBody PagarContaForm form) {
+//        return ContaService.pagar(id, form);
 //    }
 }
+

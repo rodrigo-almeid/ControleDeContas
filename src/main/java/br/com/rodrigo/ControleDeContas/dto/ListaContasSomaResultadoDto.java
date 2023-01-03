@@ -1,8 +1,7 @@
-package br.com.rodrigo.ControleDeContas.controller.dto;
+package br.com.rodrigo.ControleDeContas.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

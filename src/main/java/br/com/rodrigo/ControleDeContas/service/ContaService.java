@@ -84,14 +84,14 @@ public class ContaService {
             form.setParcela(1);
         }
         Integer i = form.getParcela();
-        List<Conta> contas = new Array<>();
+        List<Conta> contas = new Array();
         while (i != 0) {
             Conta conta = form.converter(contaRepository);
             conta.setVencimento(conta.getVencimento().plusMonths(i - 1));
             contas.add(conta);
             i--;
         }
-        contaRepository.save(contas);
+        contaRepository.saveAll(contas);
         List<ContaDto> contasDto = ContaDto.converter(contaRepository.findByContaAndValor(form.getConta(), form.getValor()));
         return contasDto;
     }

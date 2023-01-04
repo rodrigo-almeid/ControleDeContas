@@ -14,15 +14,22 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ContaForm {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String conta;
     private Double valor;
     private LocalDate vencimento;
     private String descricao;
     private Integer parcela;
-    public Conta converter(ContaRepository contaRepository) {
-            return new Conta(id,conta, valor, vencimento, descricao, parcela);
+    public Conta converter(ContaForm form) {
+        return               Conta.builder()
+                .id(form.getId())
+                .conta(form.getConta())
+                .valor(form.getValor())
+                .vencimento(form.getVencimento())
+                .parcela(form.getParcela())
+                .descricao(form.getDescricao())
+                .build();
     }
+
 }

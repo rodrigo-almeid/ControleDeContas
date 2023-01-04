@@ -26,8 +26,9 @@ public class ContaDto {
     }
 
     public static List<ContaDto> converter(List<Conta> contas) {
-        List<ContaDto> lista = contas.stream().map(ContaDto::new).collect(Collectors.toList());
-        lista.size();
-        return lista;
+        return contas.stream().map(ContaDto::new).collect(Collectors.toList());
+    }
+    public static ContaDto converterum(Conta conta){
+        return new ContaDto(conta);
     }
 }

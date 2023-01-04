@@ -1,14 +1,12 @@
 package br.com.rodrigo.ControleDeContas.controller;
 
-import br.com.rodrigo.ControleDeContas.dto.ContaDto;
-import br.com.rodrigo.ControleDeContas.dto.ListaContasSomaResultadoDto;
 import br.com.rodrigo.ControleDeContas.controller.form.ContaForm;
 import br.com.rodrigo.ControleDeContas.controller.form.PagarContaForm;
+import br.com.rodrigo.ControleDeContas.dto.ContaDto;
+import br.com.rodrigo.ControleDeContas.dto.ListaContasSomaResultadoDto;
 import br.com.rodrigo.ControleDeContas.service.ContaService;
-import br.com.rodrigo.ControleDeContas.repository.ContaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -33,13 +31,18 @@ public class ContasController {
     }
 
     @PostMapping
-    public List<ContaDto> cadastrar(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) {
-        return ContaService.cadastrar(form, uriBuilder);
+    public List<ContaDto> cadastrar(@RequestBody ContaForm contaForm, UriComponentsBuilder uriBuilder) {
+        return contaService.cadastrar(contaForm, uriBuilder);
     }
-//
-//    @PutMapping("/{id}/pagar")
-//    public ResponseEntity<ContaDto> pagar(@PathVariable Long id, @RequestBody PagarContaForm form) {
-//        return ContaService.pagar(id, form);
-//    }
+
+    @PutMapping("/{id}/pagar")
+    public ContaDto pagar(@PathVariable Long id) {
+        return contaService.pagar(id);
+    }
+    @PutMapping("/{id}/ajustar")
+    public ContaDto ajustar(@PathVariable Long id,@RequestBody ContaForm contaForm) {
+        Double valor = contaForm.getValor();
+        return contaService.ajustar(id, valor);
+    }
 }
 

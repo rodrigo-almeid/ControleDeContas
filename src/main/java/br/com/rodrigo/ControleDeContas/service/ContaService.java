@@ -47,44 +47,54 @@ public class ContaService {
     }
 
     public ResponseEntity<ContaDto> detalhar(@PathVariable Long id) {
+
         Optional<Conta> conta = contaRepository.findById(id);
         if (conta.isPresent()) {
             return ResponseEntity.ok(new ContaDto(conta.get()));
         }
         return ResponseEntity.notFound().build();
     }
-    public static List<ContaDto> cadastrar(ContaForm form, UriComponentsBuilder uriBuilder) {
-        if (form.getParcela() == null) {
-            form.setParcela(1);
+    public List<ContaDto> cadastrar(ContaForm contaForm, UriComponentsBuilder uriBuilder){
+        if (contaForm.getParcela() == null) {
+            contaForm.setParcela(1);
         }
-        Integer i = form.getParcela();
+        Integer i = contaForm.getParcela();
+        List<Conta> contaList = new ArrayList<>();
         while (i != 0) {
-            Conta conta = form.converter(contaRepository);
-            contaRepository.save(conta);
+            Conta conta = contaForm.converter(contaForm);
             conta.setVencimento(conta.getVencimento().plusMonths(i - 1));
+            conta.setStatus(StatusConta.PENDENTE);
+            contaList.add(conta);
             i--;
         }
-        List<ContaDto> contasDto = ContaDto.converter(contaRepository.findByContaAndValor(form.getConta(), form.getValor()));
-        return contasDto;
+        List<Conta> contas = contaRepository.saveAll(contaList);
+        return ContaDto.converter(contas);
+
     }
-//    public static ResponseEntity<ContaDto> pagar(Long id, PagarContaForm form) {
-//        Optional<Conta> optional = contaRepository.findById(id);
-//        if (optional.isPresent()) {
-//            Conta conta = form.pagar(id, contaRepository);
-//            return ResponseEntity.ok(new ContaDto(conta));
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
+    public ContaDto pagar(Long id) {
+    Conta conta = contaRepository.getOne(id);
+    conta.setStatus(StatusConta.PAGO);
+    contaRepository.save(conta);
+    ContaDto contaDto = ContaDto.converterum(conta);
+    return  contaDto;
+
+    }
+
+    public ContaDto ajustar(Long id, double valor){
+        Conta conta = contaRepository.getOne(id);
+        conta.setValor(valor);
+        contaRepository.save(conta);
+        ContaDto contaDto = ContaDto.converterum(conta);
+        return  contaDto;
+    }
     private List<Conta> verificarDatas(LocalDate inicio, LocalDate fim) {
         List<Conta> contaList = new ArrayList<>();
         if (inicio != null && fim != null) {
             contaList = contaRepository.findByVencimentoBetween(inicio, fim, Sort.by(Sort.Direction.ASC, "vencimento"));
         }
-
         if (inicio != null && fim == null) {
             contaList = contaRepository.findByVencimentoGreaterThanEqual(inicio);
         }
-
         if (inicio == null && fim == null) {
             contaList = contaRepository.findAll();
         }
